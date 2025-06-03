@@ -1,5 +1,12 @@
 using UnityEngine;
 using Movement;
+using TMPro;
+
+
+// git add . && git commit -m "Meine �nderung" && git push
+
+
+
 
 public class MainCMovement : MonoBehaviour
 {
@@ -14,7 +21,7 @@ public class MainCMovement : MonoBehaviour
     //Interaction Variables
     public float interactRange = 1.5f;         
     public LayerMask interactableLayer;           
-    private Vector2 lookDirection = Vector2.right; 
+    private Vector2 lookDirection = Vector2.right;
 
 
 
@@ -53,9 +60,10 @@ public class MainCMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
     }
 
-  
+
     private void FixedUpdate()
     {
         if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive)
@@ -64,6 +72,9 @@ public class MainCMovement : MonoBehaviour
             return;
         }
         rb.linearVelocity = moveInput * speed;
+
+        
+
     }
 
     void TryInteract()
