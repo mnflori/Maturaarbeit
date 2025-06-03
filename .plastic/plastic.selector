@@ -1,0 +1,4 @@
+repository "Maturaarbeit Schizophrenie/Maturaarbeit Schizophrenie@9072219020492@cloud"
+  path "/"
+    br "/main"
+    co "/main"
