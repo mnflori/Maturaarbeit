@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ScreenCameraMover : MonoBehaviour
 {
+    
     public float screenWidth = 16f;
     public float screenHeight = 9f;
     public float moveSpeed = 5f;
@@ -13,8 +14,7 @@ public class ScreenCameraMover : MonoBehaviour
     {
         Instance = this;
         
-        
-        
+  
     }
 
   
@@ -23,7 +23,7 @@ public class ScreenCameraMover : MonoBehaviour
 
     public void MoveCamera(Vector2 direction)
     {
-        // Sofortige Positionsänderung, kein isMoving nötig
+        // Sofortige Positionsänderung der Kamera
         Vector3 shift = new Vector3(direction.x * screenWidth, direction.y * screenHeight, 0f);
         transform.position += shift;
     }
