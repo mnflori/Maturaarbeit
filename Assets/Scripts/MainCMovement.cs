@@ -1,9 +1,9 @@
 using UnityEngine;
 using Movement;
 using TMPro;
+using System.Collections;
 
 
-// git add . && git commit -m "Meine �nderung" && git push
 
 
 
@@ -20,8 +20,19 @@ public class MainCMovement : MonoBehaviour
 
     //Interaction Variables
     public float interactRange = 1.5f;         
-    public LayerMask interactableLayer;           
+    public LayerMask interactableLayerNPC;
     private Vector2 lookDirection = Vector2.right;
+
+
+    //Dash Variables
+    [Header("Dash Settings")]
+    public float dashForce = 20f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 1f;
+
+    private bool isDashing = false;
+    private bool canDash = true;
+
 
 
 
@@ -39,8 +50,11 @@ public class MainCMovement : MonoBehaviour
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
 
         controls.Player.Interact.performed += ctx => TryInteract();
-        
-        
+
+        controls.Player.Dash.performed += ctx => TryDash();
+
+
+
     }
 
 
@@ -71,15 +85,15 @@ public class MainCMovement : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
             return;
         }
-        rb.linearVelocity = moveInput * speed;
 
-        
-
+        if (!isDashing)
+            rb.linearVelocity = moveInput * speed;
     }
+
 
     void TryInteract()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, lookDirection, interactRange, interactableLayer);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, lookDirection, interactRange, interactableLayerNPC);
         
         if (hit.collider != null)
         {
@@ -99,4 +113,31 @@ public class MainCMovement : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + (Vector3)lookDirection * interactRange);
     }
+
+
+    void TryDash()
+    {
+        if (!canDash || isDashing)
+            return;
+
+        StartCoroutine(DashRoutine());
+    }
+
+    private IEnumerator DashRoutine()
+    {
+        isDashing = true;
+        canDash = false;
+
+        Vector2 dashDirection = lookDirection.normalized;
+        rb.linearVelocity = dashDirection * dashForce;
+
+        yield return new WaitForSeconds(dashDuration);
+
+        rb.linearVelocity = Vector2.zero;
+        isDashing = false;
+
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
 }

@@ -1722,9 +1722,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   interactRange: 1.5
-  interactableLayer:
+  interactableLayerNPC:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
+  dashForce: 13
+  dashDuration: 0.2
+  dashCooldown: 1
 --- !u!212 &671901921
 SpriteRenderer:
   m_ObjectHideFlags: 0

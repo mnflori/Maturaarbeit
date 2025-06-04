@@ -10,7 +10,7 @@ public class NPC : MonoBehaviour, IInteractable
         
         if (!DialogueManager.Instance.IsDialogueActive)
         {
-            Debug.Log("NPC.Interact() wurde ausgelöst!");
+            
             DialogueManager.Instance.StartDialogue(dialogueLines);
         }
     }
