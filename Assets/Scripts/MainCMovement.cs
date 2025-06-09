@@ -33,7 +33,13 @@ public class MainCMovement : MonoBehaviour
     private bool isDashing = false;
     private bool canDash = true;
 
-
+    //Inventory Variables
+    [Header("Scripts")]
+    [SerializeField] private InventoryPreviewUI inventoryPreviewUI;
+    [SerializeField] private InventoryManager inventoryManager;
+    private float holdThreshold = 0.25f; //Damit das Inventar nicht direkt gezeigt wird, sondern mann gedigen das Item mit einmaligem Klicken ändern kann
+    private bool tabHeld = false;
+    private float tabPressedTime;
 
 
     private void Awake()
@@ -53,7 +59,28 @@ public class MainCMovement : MonoBehaviour
 
         controls.Player.Dash.performed += ctx => TryDash();
 
+        controls.UI.InventoryPreview.started += ctx => //Hier wird, sobald Tab gedrückt wird, die Zeit gezählt.
+        {
+            tabHeld = true;
+            tabPressedTime = Time.time; 
+            
+        };
 
+        controls.UI.InventoryPreview.canceled += ctx =>
+        {
+            tabHeld = false;
+
+            float heldDuration = Time.time - tabPressedTime;
+
+            if (heldDuration < holdThreshold) // Sollte hier die heldDuration, also die Zeit, seit dem Halten von Tab, kleiner sein als der holdThreshold, wird das Item einfach gewechselt. Wird gemacht, sobald Tab losgelasst wird.
+            {
+                switchToNextItem();
+            }
+            else
+            {
+                inventoryPreviewUI.HideMiniInventory(); //Sollte die heldDuration länger sein, wird beim loslassen von Tab einfach die UI ausgeblendet.
+            }
+        };
 
     }
 
@@ -61,7 +88,7 @@ public class MainCMovement : MonoBehaviour
     private void OnEnable()
     {
         controls.Player.Enable();
-        
+        controls.UI.Enable();
 
     }
 
@@ -69,6 +96,15 @@ public class MainCMovement : MonoBehaviour
     {
         
         controls.Player.Disable();
+        controls.UI.Disable();
+    }
+
+    private void Update()
+    {
+        if (tabHeld && Time.time - tabPressedTime > holdThreshold && !inventoryPreviewUI.isVisible()) //Hier wird geschaut, ob der Threshold schon erreicht wurde und ob Tab immer noch gedrückt wird. Wenn beides der Fall ist, wird das Inventar gezeigt.
+        {
+            inventoryPreviewUI.ShowMiniInventory();
+        }
     }
 
     void Start()
@@ -80,38 +116,58 @@ public class MainCMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive)
+        if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive) //Dies ist, um das Bewegen wärend einer Interaktion mit einem NPC zu verhindern.
         {
             rb.linearVelocity = Vector2.zero;
             return;
         }
 
         if (!isDashing)
-            rb.linearVelocity = moveInput * speed;
+            rb.linearVelocity = moveInput * speed; 
     }
 
 
     void TryInteract()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, lookDirection, interactRange, interactableLayerNPC);
-        
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, lookDirection, interactRange, interactableLayerNPC); //Hier wird geschaut, ob der Strich, der vom MC weggeht, beim Drücken von "E", ein GameObject mit dem Layer "Interactable" trifft.
         if (hit.collider != null)
         {
-            Debug.Log("Hallo");
+            
 
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
             if (interactable != null)
             {
-                interactable.Interact();
+
+                if (hit.collider.TryGetComponent<IItem>(out IItem item))
+                {
+                    
+                    string itemName = item.getItemName();
+                    Debug.Log(itemName);
+                    inventoryManager.addItem(itemName);
+                    Destroy(hit.collider.gameObject);
+                }
+                else
+                {
+                    
+                    interactable.Interact(); //Wenn ja, wird das Skript aufgerufen, dass dazuführt, dass Text angezeigt wird.
+                }
+                
             }
         }
+
        
+
     }
 
-    void OnDrawGizmos()
+    private void switchToNextItem()
+    {
+        inventoryManager.SelectNextItem(); //Dies zeigt an, welches Item ausgewählt ist.
+    }
+
+    void OnDrawGizmos() //Dies ist dafür da, um den "Interaction-Strich" zu sehen im Scene View.
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + (Vector3)lookDirection * interactRange);
+        Gizmos.DrawLine(transform.position, transform.position + (Vector3)lookDirection * interactRange); 
     }
 
 
@@ -120,10 +176,10 @@ public class MainCMovement : MonoBehaviour
         if (!canDash || isDashing)
             return;
 
-        StartCoroutine(DashRoutine());
+        StartCoroutine(DashRoutine()); //Dies ist dafür da, um das spammen von Dash zu verhindern.
     }
 
-    private IEnumerator DashRoutine()
+    private IEnumerator DashRoutine() //Dies zählt die Zeit ab, wenn man wieder Dash benutzen kann.
     {
         isDashing = true;
         canDash = false;
