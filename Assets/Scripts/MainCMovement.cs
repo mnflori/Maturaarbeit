@@ -41,6 +41,10 @@ public class MainCMovement : MonoBehaviour
     private bool tabHeld = false;
     private float tabPressedTime;
 
+    //Character Variables
+    [Header("Stats")]
+    public int playerHealth;
+
 
     private void Awake()
     {

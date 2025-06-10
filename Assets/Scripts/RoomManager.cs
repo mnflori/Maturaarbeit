@@ -11,6 +11,10 @@ public class RoomManager : MonoBehaviour
     public int startingRoomX;   //Die drei Variabeln sind, so damit, der "Startraum" ggbfalls verändert werden kann.
     public int startingRoomY;
 
+    private Vector2Int? roomWithEnemy;
+
+    private GameObject globalEnemy = null;
+
     private void Awake()
     {
         if (Instance == null)
@@ -42,13 +46,39 @@ public class RoomManager : MonoBehaviour
     //raus gegangen wird, deaktiviert wird.
     public void SetActiveRoom(Vector2Int newRoom)
     {
-        if (rooms.ContainsKey(currentRoom))
-            rooms[currentRoom].SetActive(false);
 
+        // Despawn den Gegner im alten Gegner-Raum, falls nötig
+        if (roomWithEnemy.HasValue && rooms.ContainsKey(roomWithEnemy.Value))
+        {
+            GameObject enemyRoomObj = rooms[roomWithEnemy.Value];
+            RoomScript enemyRoomScript = enemyRoomObj.GetComponent<RoomScript>();
+
+            if (enemyRoomScript != null)
+            {
+                enemyRoomScript.ForceDespawnEnemy(enemyRoomScript.despawnChance);
+
+                if (!enemyRoomScript.HasEnemy())
+                {
+                    roomWithEnemy = null;
+                }
+            }
+        }
+
+        if (rooms.ContainsKey(currentRoom))
+        {
+            rooms[currentRoom].SetActive(false);
+        }
         if (rooms.ContainsKey(newRoom))
         {
             rooms[newRoom].SetActive(true);
             currentRoom = newRoom;
+
+            // Wenn hier ein Gegner gespawnt wurde, merken
+            RoomScript newRoomScript = rooms[newRoom].GetComponent<RoomScript>();
+            if (newRoomScript != null && newRoomScript.HasEnemy())
+            {
+                roomWithEnemy = newRoom;
+            }
         }
         else
         {
@@ -62,5 +92,28 @@ public class RoomManager : MonoBehaviour
     {
         startingRoomX = roomX;
         startingRoomY = roomY;
+    }
+
+    public Vector2Int GetCurrentRoom()
+    {
+        return currentRoom;
+    }
+
+    public bool IsEnemyActive()
+    {
+        return globalEnemy != null;
+    }
+
+    public void RegisterEnemy(GameObject enemy)
+    {
+        globalEnemy = enemy;
+    }
+
+    public void UnregisterEnemy(GameObject enemy)
+    {
+        if (globalEnemy == enemy)
+        {
+            globalEnemy = null;
+        }
     }
 }

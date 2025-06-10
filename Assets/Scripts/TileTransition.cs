@@ -25,7 +25,6 @@ public class TileTransition : MonoBehaviour
     //Hier wird berechnet, wohin es geht
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log(currentRoomX);
         switch(directionNextRoom)
         {
             case "up":
@@ -35,7 +34,6 @@ public class TileTransition : MonoBehaviour
             case "right":
                 currentRoomX = currentRoomX + 1;
                 cameraDirection = new Vector2(1.1111111f, 0);
-                Debug.Log("Right");
                 break;
             case "down":
                 currentRoomY = currentRoomY - 1;
@@ -44,7 +42,6 @@ public class TileTransition : MonoBehaviour
             case "left":
                 currentRoomX = currentRoomX - 1;
                 cameraDirection = new Vector2(-1.1111f, 0);
-                Debug.Log("Left");
                 break;
 
                 
