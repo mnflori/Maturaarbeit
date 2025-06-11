@@ -1,8 +1,10 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DebugManager : MonoBehaviour
 {
     public static DebugManager Instance { get; private set; }
+    public GameObject debugUI;
 
     public bool debugMode = false;
 
@@ -21,6 +23,19 @@ public class DebugManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F3))  // z.B. F3 schaltet DebugMode um
         {
             debugMode = !debugMode;
+            checkIfNeededToBeShown();
+        }
+    }
+
+    private void checkIfNeededToBeShown()
+    {
+        if (debugMode)
+        {
+            debugUI.SetActive(true);
+        }
+        else
+        {
+            debugUI.SetActive(false);
         }
     }
 }

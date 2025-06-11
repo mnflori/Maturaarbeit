@@ -10,12 +10,10 @@ public class DebugUI : MonoBehaviour
     {
         if (DebugManager.Instance != null && DebugManager.Instance.debugMode)
         {
-            debugText.enabled = true;
+            
             debugText.text = $"Leben: {player.playerHealth}";
+            
         }
-        else
-        {
-            debugText.enabled = false;
-        }
+
     }
 }

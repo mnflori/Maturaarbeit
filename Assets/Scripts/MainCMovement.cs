@@ -200,4 +200,21 @@ public class MainCMovement : MonoBehaviour
         canDash = true;
     }
 
+    public void takeDamage(int amount)
+    {
+        playerHealth -= amount;
+        Debug.Log("Player took damage! Current health: " + playerHealth);
+
+        if (playerHealth <= 0)
+        {
+            playerDies();
+        }
+    }
+
+    private void playerDies()
+    {
+        Debug.Log("Player died");
+        // TODO Respawn, Game Over, was auch immer
+    }
+
 }

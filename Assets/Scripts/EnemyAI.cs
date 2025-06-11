@@ -60,5 +60,16 @@ public class EnemyAI : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
-    
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            MainCMovement player = other.GetComponent<MainCMovement>();
+            if (player != null)
+            {
+                player.takeDamage(34);
+                Destroy(gameObject);
+            }
+        }
+    }
 }

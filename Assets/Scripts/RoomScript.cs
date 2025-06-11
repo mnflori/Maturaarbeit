@@ -5,6 +5,7 @@ public class RoomScript : MonoBehaviour
     public Vector2Int roomCoordinates;  // Hier sind die Koordinaten des Raumes
     private int roomPositionX;
     private int roomPositionY;
+   
 
     [Header("Enemy Spawning")]
     public GameObject enemyPrefab;
@@ -45,10 +46,18 @@ public class RoomScript : MonoBehaviour
 
     private void TrySpawnEnemy()
     {
-        if (RoomManager.Instance.IsEnemyActive())
+
+        if (RoomManager.Instance != null)
         {
-            return; // Schon ein Gegner aktiv → dieser Raum spawnt keinen
+            if (RoomManager.Instance.IsEnemyActive())
+            {
+                return; // Schon ein Gegner aktiv → dieser Raum spawnt keinen
+            }
         }
+                
+
+        
+        
 
         if (enemyPrefab == null || enemySpawnPoints.Length == 0) return;
 
@@ -58,8 +67,11 @@ public class RoomScript : MonoBehaviour
             spawnedEnemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
             isEnemyThere = true;
 
-
-            RoomManager.Instance.RegisterEnemy(spawnedEnemy);
+            if (RoomManager.Instance != null)
+            {
+                RoomManager.Instance.RegisterEnemy(spawnedEnemy);
+            }
+            
             EnemyAI ai = spawnedEnemy.GetComponent<EnemyAI>();
             if (ai != null)
             {
